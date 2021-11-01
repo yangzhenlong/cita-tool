@@ -19,7 +19,7 @@ public class TransactionTest {
         Key key = Keys.create(Transaction.CryptoTx.SM2);
 
         // build blockchain object
-        Blockchain blockchain = Blockchain.builder().rpcAddr("https://testnet-sm2.rivus.rivtower.com").cryptoType(Transaction.CryptoTx.SM2).build();
+        Blockchain blockchain = Blockchain.builder().rpcAddr("http://localhost:1337").cryptoType(Transaction.CryptoTx.SM2).build();
 
         // sendRawTransaction
         String txHash = blockchain.sendRawTransaction("abc", key.getPrivateKey());
