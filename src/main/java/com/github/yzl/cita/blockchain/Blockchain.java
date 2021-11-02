@@ -8,6 +8,7 @@ import com.citahub.cita.protocol.core.methods.response.AppSendTransaction;
 import com.citahub.cita.protocol.core.methods.response.TransactionReceipt;
 import com.citahub.cita.protocol.http.HttpService;
 import com.citahub.cita.utils.HexUtil;
+import com.github.yzl.cita.utils.BlockchainUtil;
 import com.github.yzl.cita.utils.StringUtil;
 
 import java.io.IOException;
@@ -21,8 +22,7 @@ public class Blockchain {
 
     private Blockchain() {}
 
-    private static final String CONTACT_TO_ADDRESS = "0xffffffffffffffffffffffffffffffffff010000";
-    private static final int VALID_UNTIL_BLOCK = 88;
+    private static final String EVIDENCE_ADDRESS = "0xffffffffffffffffffffffffffffffffff010000";
     private static final String DEFAULT_TX_VALUE = "0";
 
     private String rpcAddr;
@@ -47,38 +47,25 @@ public class Blockchain {
 
     private Transaction buildTransaction(String utf8String) {
         return new Transaction(
-                CONTACT_TO_ADDRESS,
+                EVIDENCE_ADDRESS,
                 String.valueOf(System.nanoTime()),
                 Quotas.estimateQuota(utf8String.getBytes(StandardCharsets.UTF_8).length),
-                getBlockNumber().longValue() + VALID_UNTIL_BLOCK,
+                BlockchainUtil.getBlockNumber(citAj).longValue() + BlockchainUtil.VALID_UNTIL_BLOCK,
                 2,
                 new BigInteger("1"),
                 DEFAULT_TX_VALUE,
                 HexUtil.bytesToHex(utf8String.getBytes()));
     }
 
-    public BigInteger getBlockNumber() {
-        try {
-            return citAj.appBlockNumber().send().getBlockNumber();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("get block number failed. " + e.getMessage());
-        }
-    }
-
     public TransactionReceipt getTransactionReceiptByTxHash(String txHash) {
-        try {
-            AppGetTransactionReceipt appGetTransactionReceipt = citAj.appGetTransactionReceipt(txHash).send();
-            return appGetTransactionReceipt.getTransactionReceipt();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("getTransactionReceiptByTxHash failed. " + e.getMessage());
-        }
+        return BlockchainUtil.getTransactionReceiptByTxHash(citAj, txHash);
     }
 
     public static Builder builder() {
         return new Builder();
     }
+
+
 
     public static class Builder {
 
